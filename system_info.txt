@@ -1,0 +1,92 @@
+2026-10-04T19:08:05+05:30
+MINGW64_NT-10.0-26300 DESKTOP-6CMH8I3 3.6.7-fb42d713.x86_64 2026-03-29 11:44 UTC x86_64 Msys
+=== OS ===
+cat: /etc/os-release: No such file or directory
+=== CPU ===
+bash: lscpu: command not found
+=== MEMORY ===
+bash: free: command not found
+=== STORAGE ===
+Filesystem     Type  Size  Used Avail Use% Mounted on
+C:             ntfs  953G  807G  147G  85% /c
+bash: lsblk: command not found
+=== LIMITS ===
+core file size              (blocks, -c) 0
+data seg size               (kbytes, -d) unlimited
+file size                   (blocks, -f) unlimited
+open files                          (-n) 3200
+pipe size                (512 bytes, -p) 8
+stack size                  (kbytes, -s) 2032
+cpu time                   (seconds, -t) unlimited
+max user processes                  (-u) 256
+virtual memory              (kbytes, -v) unlimited
+=== NVIDIA GPU ===
+/c/WINDOWS/system32/nvidia-smi
+Sun Oct  4 19:08:06 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 596.71                 Driver Version: 596.71         CUDA Version: 13.2     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                  Driver-Model | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX 2000 Ada Gene...  WDDM  |   00000000:55:00.0  On |                  Off |
+| 30%   38C    P8              5W /   70W |    1062MiB /  16380MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A            3004    C+G   ...ms\Microsoft VS Code\Code.exe      N/A      |
+|    0   N/A  N/A            7080    C+G   ...App_cw5n1h2txyewy\LockApp.exe      N/A      |
+|    0   N/A  N/A           10556    C+G   ...8bbwe\PhoneExperienceHost.exe      N/A      |
+|    0   N/A  N/A           10604    C+G   ...indows\System32\ShellHost.exe      N/A      |
+|    0   N/A  N/A           11200    C+G   C:\Windows\explorer.exe               N/A      |
+|    0   N/A  N/A           11508    C+G   ...2txyewy\CrossDeviceResume.exe      N/A      |
+|    0   N/A  N/A           12004    C+G   ...xyewy\ShellExperienceHost.exe      N/A      |
+|    0   N/A  N/A           12728    C+G   ..._cw5n1h2txyewy\SearchHost.exe      N/A      |
+|    0   N/A  N/A           12752    C+G   ...y\StartMenuExperienceHost.exe      N/A      |
+|    0   N/A  N/A           14544    C+G   ....0.4258.53\msedgewebview2.exe      N/A      |
+|    0   N/A  N/A           16168    C+G   ...em32\ApplicationFrameHost.exe      N/A      |
+|    0   N/A  N/A           17188    C+G   ...5n1h2txyewy\TextInputHost.exe      N/A      |
+|    0   N/A  N/A           19440    C+G   ...ntrolPanel\SystemSettings.exe      N/A      |
+|    0   N/A  N/A           23284    C+G   ...m Files\RustDesk\RustDesk.exe      N/A      |
++-----------------------------------------------------------------------------------------+
+index, name, driver_version, memory.total [MiB], memory.free [MiB], power.limit [W], compute_cap
+0, NVIDIA RTX 2000 Ada Generation, 596.71, 16380 MiB, 15058 MiB, 70.00 W, 8.9
+ERROR: Option -m is missing its value. Please run 'nvidia-smi -h' for help.
+
+=== CUDA TOOLKIT ===
+bash: nvcc: command not found
+=== SOFTWARE ===
+/c/Users/General/AppData/Local/Microsoft/WindowsApps/python3
+Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings > Apps > Advanced app settings > App execution aliases.
+Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings > Apps > Advanced app settings > App execution aliases.
+conda
+conda 25.5.1
+bash: docker: command not found
+git version 2.54.0.windows.1
+bash: gcc: command not found
+=== NETWORK CHECK ===
+HTTP/1.1 403 Forbidden
+Content-Type: application/xml
+Connection: keep-alive
+x-amz-bucket-region: us-east-1
+Server: AmazonS3
+Date: Sun, 04 Oct 2026 13:38:08 GMT
+X-Cache: Error from cloudfront
+Via: 1.1 a657a8a123aaa04cfd8e311da37b9514.cloudfront.net (CloudFront)
+X-Amz-Cf-Pop: DEL54-P4
+X-Amz-Cf-Id: c2cnTyaSWL2bFq1qfY0wh9mHvVx63CWLFjARhnUMNG_FGBCrCdxJGQ==
+HTTP/1.1 200 OK
+Server: nginx/1.31.4
+Date: Sun, 04 Oct 2026 13:38:09 GMT
+Content-Type: text/html
+Content-Length: 102075
+Connection: keep-alive
+etag: "1wk53jj"
+x-sveltekit-page: true
+

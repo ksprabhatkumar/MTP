@@ -99,7 +99,7 @@ def drop_random_sensors(x, max_drops=1, drop_prob=0.1):
             mask[b, 0, drop_indices, 0] = 0.0
     return x * mask
 
-def train_one_epoch(model, dataloader, criterion_cls, optimizer, device, lambda_mse):
+def train_one_epoch(model, dataloader, criterion_cls, optimizer, device, lambda_mse, args):
     model.train()
     total_loss, total_cls, total_mse = 0, 0, 0
     
@@ -110,7 +110,8 @@ def train_one_epoch(model, dataloader, criterion_cls, optimizer, device, lambda_
         x_aug = temporal_cutout(x_clean, max_cutout_ratio=0.1, prob=0.2)
         x_corrupt = drop_random_sensors(x_aug, max_drops=1, drop_prob=0.2)
         
-        logits, x_recon = model(x_corrupt)
+        # 🌟 Pass ablation arguments
+        logits, x_recon, _ = model(x_corrupt, ablate_phys=args.ablate_phys, ablate_learn=args.ablate_learn, ablate_dyn=args.ablate_dyn)
         
         loss_cls = criterion_cls(logits, y)                
         loss_mse = F.mse_loss(x_recon, x_clean)            
@@ -126,7 +127,7 @@ def train_one_epoch(model, dataloader, criterion_cls, optimizer, device, lambda_
         
     return total_loss / len(dataloader), total_cls / len(dataloader), total_mse / len(dataloader)
 
-def evaluate(model, dataloader, criterion_cls, device, lambda_mse=2.0, drop_test=0):
+def evaluate(model, dataloader, criterion_cls, device, lambda_mse=2.0, drop_test=0, args=None):
     model.eval()
     total_loss = 0
     all_preds, all_labels = [], []
@@ -143,7 +144,7 @@ def evaluate(model, dataloader, criterion_cls, device, lambda_mse=2.0, drop_test
                     mask[b, 0, drop_indices, 0] = 0.0
                 x = x * mask
 
-            logits, x_recon = model(x)
+            logits, x_recon, _ = model(x, ablate_phys=args.ablate_phys, ablate_learn=args.ablate_learn, ablate_dyn=args.ablate_dyn)
             
             loss_cls = criterion_cls(logits, y)
             
@@ -161,12 +162,14 @@ def evaluate(model, dataloader, criterion_cls, device, lambda_mse=2.0, drop_test
     val_acc, val_f1 = calculate_metrics(all_labels, all_preds) if len(all_preds) > 0 else (0,0)
     return val_acc, val_f1, val_loss
 
-def run_experiment(dataset_name, device, resume_state=None):
+def run_experiment(dataset_name, device, args):
     hyperparams = CONFIGS[dataset_name]
     config = get_dataset_config(dataset_name)
     
     print(f"\n{'='*60}")
     print(f"🚀 MTP-2: DYNAMIC GRAPH ARCHITECTURE ({dataset_name.upper()})")
+    if args.ablate_phys or args.ablate_learn or args.ablate_dyn:
+        print(f"⚠️ ABLATION MODE: Phys={not args.ablate_phys}, Learn={not args.ablate_learn}, Dyn={not args.ablate_dyn}")
     print(f"{'='*60}")
     
     start_subject = 1
@@ -178,12 +181,10 @@ def run_experiment(dataset_name, device, resume_state=None):
     for subject_id in range(start_subject, config['total_subjects'] + 1):
         print(f"\n--- FOLD {subject_id}/{config['total_subjects']} ---")
         
-        # Load IDEAL dataloaders
         train_loader, internal_val_loader, test_loader = get_loso_dataloaders(
             dataset_name, subject_id, batch_size=hyperparams["batch_size"], test_on_mutual=False
         )
         
-        # 🌟 Load MUTUAL DISPLACEMENT dataloader strictly for testing
         if dataset_name.lower() == "realdisp":
             _, _, test_loader_mutual = get_loso_dataloaders(
                 dataset_name, subject_id, batch_size=hyperparams["batch_size"], test_on_mutual=True
@@ -218,8 +219,8 @@ def run_experiment(dataset_name, device, resume_state=None):
             }
             
         print("[*] Calculating Epoch 0 (Untrained Baseline)...")
-        train_acc_0, _, train_loss_0 = evaluate(model, internal_val_loader, criterion_cls, device, hyperparams["lambda_mse"], drop_test=0)
-        val_acc_0, val_f1_0, val_loss_0 = evaluate(model, test_loader, criterion_cls, device, hyperparams["lambda_mse"], drop_test=0)
+        train_acc_0, _, train_loss_0 = evaluate(model, internal_val_loader, criterion_cls, device, hyperparams["lambda_mse"], drop_test=0, args=args)
+        val_acc_0, val_f1_0, val_loss_0 = evaluate(model, test_loader, criterion_cls, device, hyperparams["lambda_mse"], drop_test=0, args=args)
         
         learning_curve_history[subject_key]["train_acc"].append(train_acc_0 * 100)
         learning_curve_history[subject_key]["val_acc"].append(val_acc_0 * 100)
@@ -233,15 +234,15 @@ def run_experiment(dataset_name, device, resume_state=None):
         
         for epoch in range(1, hyperparams["epochs"] + 1):
             train_loss, t_cls, t_mse = train_one_epoch(
-                model, train_loader, criterion_cls, optimizer, device, hyperparams["lambda_mse"]
+                model, train_loader, criterion_cls, optimizer, device, hyperparams["lambda_mse"], args
             )
             
             train_acc, _, _ = evaluate(
-                model, internal_val_loader, criterion_cls, device, hyperparams["lambda_mse"], drop_test=0
+                model, internal_val_loader, criterion_cls, device, hyperparams["lambda_mse"], drop_test=0, args=args
             )
             
             val_acc, val_f1, val_loss = evaluate(
-                model, test_loader, criterion_cls, device, hyperparams["lambda_mse"], drop_test=0
+                model, test_loader, criterion_cls, device, hyperparams["lambda_mse"], drop_test=0, args=args
             )
             
             current_lr = scheduler.get_last_lr()[0]
@@ -274,13 +275,12 @@ def run_experiment(dataset_name, device, resume_state=None):
         print(f"\n🧪 Testing Sensor Robustness on Subject {subject_id}...")
         model.load_state_dict(torch.load(f"checkpoints/mtp2_{dataset_name}_best_fold_{subject_id}.pth"))
         
-        _, f1_clean, _ = evaluate(model, test_loader, criterion_cls, device, hyperparams["lambda_mse"], drop_test=0)
-        _, f1_1drop, _ = evaluate(model, test_loader, criterion_cls, device, hyperparams["lambda_mse"], drop_test=1)
-        _, f1_2drop, _ = evaluate(model, test_loader, criterion_cls, device, hyperparams["lambda_mse"], drop_test=2)
+        _, f1_clean, _ = evaluate(model, test_loader, criterion_cls, device, hyperparams["lambda_mse"], drop_test=0, args=args)
+        _, f1_1drop, _ = evaluate(model, test_loader, criterion_cls, device, hyperparams["lambda_mse"], drop_test=1, args=args)
+        _, f1_2drop, _ = evaluate(model, test_loader, criterion_cls, device, hyperparams["lambda_mse"], drop_test=2, args=args)
         
-        # 🌟 Stress-Test Mutual Displacement 
         if test_loader_mutual is not None:
-            acc_mut, f1_mutual, _ = evaluate(model, test_loader_mutual, criterion_cls, device, hyperparams["lambda_mse"], drop_test=0)
+            acc_mut, f1_mutual, _ = evaluate(model, test_loader_mutual, criterion_cls, device, hyperparams["lambda_mse"], drop_test=0, args=args)
             print(f"🔄 MUTUAL DISPLACEMENT F1: {f1_mutual*100:.2f}%")
         
         robustness_data = (f1_clean*100, f1_1drop*100, f1_2drop*100)
@@ -298,6 +298,12 @@ def run_experiment(dataset_name, device, resume_state=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="MTP-2 Dynamic Graph Experiment Runner")
     parser.add_argument("--dataset", type=str, required=True, help="Choose dataset: dsads, opportunity, realdisp, or all")
+    
+    # 🌟 NEW ABLATION ARGUMENTS
+    parser.add_argument("--ablate_phys", action="store_true", help="Turn off the Physical Skeleton Graph")
+    parser.add_argument("--ablate_learn", action="store_true", help="Turn off the Global Learnable Graph")
+    parser.add_argument("--ablate_dyn", action="store_true", help="Turn off the Dynamic Attention Graph")
+    
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -310,4 +316,4 @@ if __name__ == "__main__":
         datasets_to_run = [args.dataset.lower()]
 
     for d_name in datasets_to_run:
-        run_experiment(d_name, device)
+        run_experiment(d_name, device, args)

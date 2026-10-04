@@ -3,10 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class InitialFeatureExtractor(nn.Module):
-    """
-    Project raw 9D IMU features into a higher-dimensional smoothed latent space
-    (Inspired by the Initial Feature Extraction module in DynamicWHAR, 2022)
-    """
     def __init__(self, in_features, hidden_dim):
         super().__init__()
         self.mlp = nn.Sequential(
@@ -16,47 +12,46 @@ class InitialFeatureExtractor(nn.Module):
         )
 
     def forward(self, x):
-        # x shape: [B*T, N, F_in]
         B_T, N, F_in = x.shape
         x_flat = x.view(B_T * N, F_in)
         out_flat = self.mlp(x_flat)
         return out_flat.view(B_T, N, -1)
 
 class ResidualDynamicGraph(nn.Module):
-    """Computes the 3-part continuous probability adjacency matrix (MTP-2)."""
     def __init__(self, num_nodes, in_features, hidden_dim):
         super().__init__()
         self.num_nodes = num_nodes
         
-        # Learnable scalars (alpha, beta, gamma)
         self.alpha = nn.Parameter(torch.ones(1) * 1.5) 
         self.beta = nn.Parameter(torch.ones(1) * 0.5)
         self.gamma = nn.Parameter(torch.ones(1) * 0.5)
         
-        # A_learn (Global dataset kinematic priors)
         self.A_learn = nn.Parameter(torch.zeros(num_nodes, num_nodes))
         
-        # Projections for Instance-Specific Routing (A_dyn)
         self.q_proj = nn.Linear(in_features, hidden_dim)
         self.k_proj = nn.Linear(in_features, hidden_dim)
         self.temperature = hidden_dim ** 0.5 
 
-    def forward(self, x, A_phys):
+    def forward(self, x, A_phys, ablate_phys=False, ablate_learn=False, ablate_dyn=False):
         B_T, N, F_dim = x.shape
         
         x_guarded = torch.tanh(x)
-        
         Q = self.q_proj(x_guarded) 
         K = self.k_proj(x_guarded) 
         
         attention_scores = torch.bmm(Q, K.transpose(1, 2)) / self.temperature
         A_dyn = F.softmax(attention_scores, dim=-1) 
         
-        A_final = (self.alpha * A_phys.unsqueeze(0)) + \
-                  (self.beta * self.A_learn.unsqueeze(0)) + \
-                  (self.gamma * A_dyn)
+        # 🌟 FIXED ABLATION LOGIC: Ensures exact batch sizes so torch.bmm never crashes!
+        device = x.device
+        term_phys = (self.alpha * A_phys.unsqueeze(0)) if not ablate_phys else torch.zeros((1, N, N), device=device)
+        term_learn = (self.beta * self.A_learn.unsqueeze(0)) if not ablate_learn else torch.zeros((1, N, N), device=device)
+        term_dyn = (self.gamma * A_dyn) if not ablate_dyn else torch.zeros((B_T, N, N), device=device)
+        
+        # Since term_dyn is [B_T, N, N], A_final will safely broadcast to [B_T, N, N]
+        A_final = term_phys + term_learn + term_dyn
                   
-        return A_final
+        return A_final, A_dyn
 
 class KinematicGraphEncoder(nn.Module):
     def __init__(self, in_features, hidden_dim):
@@ -70,7 +65,6 @@ class KinematicGraphEncoder(nn.Module):
     def forward(self, x, A_final):
         msg = torch.bmm(A_final, x)
         B_T, N, F_out = msg.shape
-        
         msg_flat = msg.view(B_T * N, F_out)
         out_flat = self.mlp(msg_flat)
         return out_flat.view(B_T, N, -1)
@@ -87,7 +81,6 @@ class KinematicGraphDecoder(nn.Module):
     def forward(self, latent_x, A_final):
         msg = torch.bmm(A_final, latent_x)
         B_T, N, F_out = msg.shape
-        
         msg_flat = msg.view(B_T * N, F_out)
         out_flat = self.mlp(msg_flat)
         return out_flat.view(B_T, N, -1)
@@ -146,16 +139,9 @@ class GAE_Mamba_WHAR(nn.Module):
             dense_A[i, j] = 1.0
         self.register_buffer('A_phys', dense_A)
         
-        # 🌟 1. Initial Feature Extractor (9 dims -> hidden_dim)
         self.feature_extractor = InitialFeatureExtractor(in_features, hidden_dim)
-        
-        # 🌟 2. Dynamic Graph now receives the extracted 'hidden_dim'
         self.dynamic_graph = ResidualDynamicGraph(num_nodes, hidden_dim, hidden_dim)
-        
-        # 🌟 3. Encoder now receives 'hidden_dim'
         self.encoder = KinematicGraphEncoder(hidden_dim, hidden_dim)
-        
-        # 🌟 4. Decoder still outputs 'in_features' (9 dims) so MSE loss can reconstruct raw IMU
         self.decoder = KinematicGraphDecoder(hidden_dim, in_features)
         
         mamba_dim = num_nodes * hidden_dim
@@ -164,24 +150,18 @@ class GAE_Mamba_WHAR(nn.Module):
         self.norm_final = nn.LayerNorm(mamba_dim)
         self.classifier = nn.Linear(mamba_dim, num_classes)
 
-    def forward(self, x_corrupt):
+    def forward(self, x_corrupt, ablate_phys=False, ablate_learn=False, ablate_dyn=False):
         B, T, N, F_dim = x_corrupt.shape
         x_flat_seq = x_corrupt.view(B * T, N, F_dim)
         
-        # 1. Project raw IMU to smooth semantic space
         x_extracted = self.feature_extractor(x_flat_seq)
         
-        # 2. Calculate dynamic routing on the smoothed features
-        A_final = self.dynamic_graph(x_extracted, self.A_phys)
+        A_final, A_dyn = self.dynamic_graph(x_extracted, self.A_phys, ablate_phys, ablate_learn, ablate_dyn)
         
-        # 3. Message passing on the smoothed features
         latent_graph = self.encoder(x_extracted, A_final)
-        
-        # 4. Reconstruct raw 9D IMU for Joint-Loss
         x_recon_flat = self.decoder(latent_graph, A_final)
         x_recon = x_recon_flat.view(B, T, N, F_dim)
         
-        # 5. Temporal classification scan
         seq_x = latent_graph.view(B, T, N * self.hidden_dim)
         mamba_out = self.mamba(seq_x)
         
@@ -189,4 +169,4 @@ class GAE_Mamba_WHAR(nn.Module):
         final_state = self.norm_final(pooled_state)
         logits = self.classifier(final_state)
         
-        return logits, x_recon
+        return logits, x_recon, A_dyn
