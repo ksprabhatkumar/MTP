@@ -1,10 +1,8 @@
-# main.py
 import os
 # --- WINDOWS TRITON BUG FIX ---
 if os.environ.get("CUDA_PATH") is None:
     os.environ["CUDA_PATH"] = "C:\\" 
 # ------------------------------
-
 
 import argparse
 import json

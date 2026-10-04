@@ -192,3 +192,71 @@ the big pc
    --> ROBUSTNESS BENCHMARK | 0 Dead: 95.21% F1 | 1 Dead: 94.94% F1 | 2 Dead: 89.66% F1
 [2026-10-03 13:52:52] >>> FINAL AVG FOR REALDISP | Acc: 97.51% | F1: 96.82%
 
+
+
+
+adapted new method for the dynamic graph approach 
+[2026-10-03 15:08:59] Dataset: DSADS | Subj: 1 | Acc: 78.07% | F1: 74.89% | Params: Ep=100, BS=64, LR=0.0005
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 74.89% F1 | 1 Dead: 66.81% F1 | 2 Dead: 49.11% F1
+[2026-10-03 15:10:29] Dataset: DSADS | Subj: 2 | Acc: 86.93% | F1: 84.99% | Params: Ep=100, BS=64, LR=0.0005
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 84.99% F1 | 1 Dead: 79.38% F1 | 2 Dead: 72.25% F1
+[2026-10-03 15:12:38] Dataset: DSADS | Subj: 3 | Acc: 89.91% | F1: 89.70% | Params: Ep=100, BS=64, LR=0.0005
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 89.70% F1 | 1 Dead: 84.64% F1 | 2 Dead: 78.08% F1
+[2026-10-03 15:13:28] Dataset: DSADS | Subj: 4 | Acc: 72.37% | F1: 67.08% | Params: Ep=100, BS=64, LR=0.0005
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 67.08% F1 | 1 Dead: 63.47% F1 | 2 Dead: 49.87% F1
+[2026-10-03 15:14:43] Dataset: DSADS | Subj: 5 | Acc: 87.63% | F1: 84.47% | Params: Ep=100, BS=64, LR=0.0005
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 84.47% F1 | 1 Dead: 79.74% F1 | 2 Dead: 69.65% F1
+[2026-10-03 15:15:42] Dataset: DSADS | Subj: 6 | Acc: 98.25% | F1: 98.19% | Params: Ep=100, BS=64, LR=0.0005
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 98.19% F1 | 1 Dead: 85.22% F1 | 2 Dead: 64.47% F1
+[2026-10-03 15:16:44] Dataset: DSADS | Subj: 7 | Acc: 91.58% | F1: 89.62% | Params: Ep=100, BS=64, LR=0.0005
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 89.62% F1 | 1 Dead: 83.81% F1 | 2 Dead: 74.36% F1
+[2026-10-03 15:18:05] Dataset: DSADS | Subj: 8 | Acc: 79.30% | F1: 77.26% | Params: Ep=100, BS=64, LR=0.0005
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 77.26% F1 | 1 Dead: 73.05% F1 | 2 Dead: 68.38% F1
+[2026-10-03 15:18:05] >>> FINAL AVG FOR DSADS | Acc: 85.50% | F1: 83.28%
+
+[2026-10-03 15:21:50] Dataset: OPPORTUNITY | Subj: 1 | Acc: 80.38% | F1: 44.99% | Params: Ep=100, BS=256, LR=0.001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 44.99% F1 | 1 Dead: 39.43% F1 | 2 Dead: 28.52% F1
+[2026-10-03 15:26:10] Dataset: OPPORTUNITY | Subj: 2 | Acc: 77.04% | F1: 32.05% | Params: Ep=100, BS=256, LR=0.001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 32.05% F1 | 1 Dead: 26.74% F1 | 2 Dead: 21.14% F1
+[2026-10-03 15:31:11] Dataset: OPPORTUNITY | Subj: 3 | Acc: 73.04% | F1: 30.75% | Params: Ep=100, BS=256, LR=0.001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 30.75% F1 | 1 Dead: 25.34% F1 | 2 Dead: 19.32% F1
+[2026-10-03 15:34:53] Dataset: OPPORTUNITY | Subj: 4 | Acc: 77.75% | F1: 37.20% | Params: Ep=100, BS=256, LR=0.001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 37.20% F1 | 1 Dead: 34.20% F1 | 2 Dead: 26.69% F1
+[2026-10-03 15:34:53] >>> FINAL AVG FOR OPPORTUNITY | Acc: 77.05% | F1: 36.25%
+
+[2026-10-03 15:38:12] Dataset: REALDISP | Subj: 1 | Acc: 96.40% | F1: 96.46% | Params: Ep=50, BS=64, LR=0.0001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 96.46% F1 | 1 Dead: 93.10% F1 | 2 Dead: 87.47% F1
+[2026-10-03 15:41:43] Dataset: REALDISP | Subj: 2 | Acc: 99.40% | F1: 99.35% | Params: Ep=50, BS=64, LR=0.0001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 99.35% F1 | 1 Dead: 98.52% F1 | 2 Dead: 93.67% F1
+[2026-10-03 15:45:08] Dataset: REALDISP | Subj: 3 | Acc: 95.96% | F1: 95.47% | Params: Ep=50, BS=64, LR=0.0001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 95.47% F1 | 1 Dead: 92.26% F1 | 2 Dead: 90.59% F1
+[2026-10-03 15:47:45] Dataset: REALDISP | Subj: 4 | Acc: 99.00% | F1: 99.24% | Params: Ep=50, BS=64, LR=0.0001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 99.24% F1 | 1 Dead: 98.28% F1 | 2 Dead: 91.82% F1
+[2026-10-03 15:51:18] Dataset: REALDISP | Subj: 5 | Acc: 96.72% | F1: 94.28% | Params: Ep=50, BS=64, LR=0.0001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 94.28% F1 | 1 Dead: 91.63% F1 | 2 Dead: 88.23% F1
+[2026-10-03 15:55:05] Dataset: REALDISP | Subj: 6 | Acc: 99.83% | F1: 99.72% | Params: Ep=50, BS=64, LR=0.0001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 99.72% F1 | 1 Dead: 90.28% F1 | 2 Dead: 74.59% F1
+[2026-10-03 15:58:46] Dataset: REALDISP | Subj: 7 | Acc: 100.00% | F1: 100.00% | Params: Ep=50, BS=64, LR=0.0001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 100.00% F1 | 1 Dead: 99.32% F1 | 2 Dead: 41.85% F1
+[2026-10-03 16:02:18] Dataset: REALDISP | Subj: 8 | Acc: 94.98% | F1: 95.55% | Params: Ep=50, BS=64, LR=0.0001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 95.55% F1 | 1 Dead: 94.19% F1 | 2 Dead: 90.27% F1
+[2026-10-03 16:05:48] Dataset: REALDISP | Subj: 9 | Acc: 98.94% | F1: 99.20% | Params: Ep=50, BS=64, LR=0.0001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 99.20% F1 | 1 Dead: 96.69% F1 | 2 Dead: 91.80% F1
+[2026-10-03 16:09:18] Dataset: REALDISP | Subj: 10 | Acc: 99.79% | F1: 99.73% | Params: Ep=50, BS=64, LR=0.0001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 99.73% F1 | 1 Dead: 98.52% F1 | 2 Dead: 95.56% F1
+[2026-10-03 16:11:35] Dataset: REALDISP | Subj: 11 | Acc: 99.27% | F1: 99.14% | Params: Ep=50, BS=64, LR=0.0001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 99.14% F1 | 1 Dead: 95.42% F1 | 2 Dead: 90.69% F1
+[2026-10-03 16:15:04] Dataset: REALDISP | Subj: 12 | Acc: 99.51% | F1: 99.48% | Params: Ep=50, BS=64, LR=0.0001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 99.48% F1 | 1 Dead: 97.67% F1 | 2 Dead: 95.23% F1
+[2026-10-03 16:17:32] Dataset: REALDISP | Subj: 13 | Acc: 96.30% | F1: 95.56% | Params: Ep=50, BS=64, LR=0.0001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 95.56% F1 | 1 Dead: 90.69% F1 | 2 Dead: 80.50% F1
+[2026-10-03 16:21:07] Dataset: REALDISP | Subj: 14 | Acc: 99.29% | F1: 99.31% | Params: Ep=50, BS=64, LR=0.0001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 99.31% F1 | 1 Dead: 98.36% F1 | 2 Dead: 93.82% F1
+[2026-10-03 16:23:58] Dataset: REALDISP | Subj: 15 | Acc: 97.17% | F1: 96.58% | Params: Ep=50, BS=64, LR=0.0001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 96.58% F1 | 1 Dead: 96.90% F1 | 2 Dead: 91.39% F1
+[2026-10-03 16:26:02] Dataset: REALDISP | Subj: 16 | Acc: 96.08% | F1: 95.64% | Params: Ep=50, BS=64, LR=0.0001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 95.64% F1 | 1 Dead: 90.56% F1 | 2 Dead: 82.63% F1
+[2026-10-03 16:29:34] Dataset: REALDISP | Subj: 17 | Acc: 97.40% | F1: 96.81% | Params: Ep=50, BS=64, LR=0.0001
+   --> ROBUSTNESS BENCHMARK | 0 Dead: 96.81% F1 | 1 Dead: 96.42% F1 | 2 Dead: 92.21% F1
+[2026-10-03 16:29:34] >>> FINAL AVG FOR REALDISP | Acc: 98.00% | F1: 97.74%
+
